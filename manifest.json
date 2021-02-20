@@ -1,0 +1,34 @@
+{
+  "version": "0.1.3",
+  "manifest_version": 2,
+  "short_name": "speech-to-text",
+  "permissions": ["storage", "contextMenus"],
+  "name": "Speech to Text (Voice Recognition)",
+  "homepage_url": "https://mybrowseraddon.com/speech-to-text.html",
+  "description": "An easy to use speech synthesis and recognition tool for your browser!",
+  "background": {
+    "persistent": false,
+    "scripts": [
+      "lib/config.js", 
+      "lib/chrome.js",
+      "lib/runtime.js",
+      "lib/common.js"
+    ]
+  },
+  "browser_action": {
+    "default_title": "Speech to Text",
+    "default_icon": {
+      "16": "data/icons/16.png",
+      "32": "data/icons/32.png",
+      "48": "data/icons/48.png",
+      "64": "data/icons/64.png"
+    }
+  },
+  "icons": {
+    "16": "data/icons/16.png",
+    "32": "data/icons/32.png",
+    "48": "data/icons/48.png",
+    "64": "data/icons/64.png",
+    "128": "data/icons/128.png"
+  }
+}

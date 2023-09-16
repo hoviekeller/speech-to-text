@@ -46,13 +46,36 @@
       <table>
         <tr>
           <td class="start">
-            <button id="start">
+            <button id="start" title="Click to listen">
               <img alt="start" id="talk" src="images/mic.png">
             </button>
           </td>
           <td class="settings">
-            <select id="language"></select>
-            <select id="dialect"></select>
+            <select id="language" title="Select a language"></select>
+            <select id="dialect" title="Select a dialect"></select>
+            <select id="font" title="Select a font">
+              <option value="0">Arial, Helvetica, sans-serif</option>
+              <option value="1">Times New Roman, Times, serif</option>
+              <option value="2">Georgia, serif</option>
+              <option value="3">Courier New, Courier, monospace</option>
+              <option value="4">Verdana, Geneva, sans-serif</option>
+              <option value="5">Tahoma, Geneva, sans-serif</option>
+              <option value="6">Trebuchet MS, sans-serif</option>
+              <option value="7">Calibri, sans-serif</option>
+              <option value="8">Arial Black, sans-serif</option>
+              <option value="9">Geneva, Tahoma, sans-serif</option>
+              <option value="10">Lucida Sans Unicode, Lucida Grande, sans-serif</option>
+              <option value="11">Palatino Linotype, Book Antiqua, Palatino, serif</option>
+              <option value="12">Impact, Charcoal, sans-serif</option>
+              <option value="13">Century Gothic, sans-serif</option>
+              <option value="14">Garamond, Baskerville, serif</option>
+              <option value="15">Bookman, Bookman Old Style, serif</option>
+              <option value="16">Avant Garde, sans-serif</option>
+              <option value="17">Franklin Gothic Medium, sans-serif</option>
+              <option value="18">Copperplate, Copperplate Gothic Light, sans-serif</option>
+              <option value="19">Consolas, monospace</option>
+            </select>
+            <input id="size" type="number" title="Enter a font size (px)">
           </td>
         </tr>
       </table>

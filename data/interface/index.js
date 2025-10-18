@@ -62,37 +62,14 @@ var background = {
 };
 
 var config = {
-  "current": {
-    "style": '',
-    "element": {
-      "final": null,
-      "interim": null
-    }
-  },
-  "button": {
-    "info": {},
-    "talk": {},
-    "font": {},
-    "size": {},
-    "final": {},
-    "start": {},
-    "dialect": {},
-    "interim": {},
-    "language": {}
-  },
+  "button": {},
+  "element": {},
   "linebreak": function (e) {
     return e.replace(/\n\n/g, "<p></p>").replace(/\n/g, "<br>");
   },
   "addon": {
     "homepage": function () {
       return chrome.runtime.getManifest().homepage_url;
-    }
-  },
-  "app": {
-    "start": function () {
-      config.update.size();
-      config.update.font();
-      config.speech.synthesis.init();
     }
   },
   "capitalize": function (e) {
@@ -103,69 +80,52 @@ var config = {
   "show": {
     "info": function (i, q) {
       const comment = q ? '\n' + ">> " + q : '';
-      config.button.info.textContent = ">> " + config.message[i] + comment;
+      config.element.info.textContent = ">> " + (i ? (config.message[i] ? config.message[i] : i) + comment : comment);
     }
   },
   "nosupport": function (e) {
     config.button.size.disabled = true;
     config.button.font.disabled = true;
+    config.button.chunk.disabled = true;
     config.button.start.disabled = true;
+    config.button.engine.disabled = true;
     config.button.dialect.disabled = true;
     config.button.language.disabled = true;
     config.button.talk.src = "images/nomic.png";
     config.show.info("no_support", e ? e : "Please either update your browser or try the app in a different browser.");
   },
-  "selection": function () {
-    if (window.getSelection) {
-      window.getSelection().removeAllRanges();
-      /*  */
-      const range = document.createRange();
-      range.selectNode(config.button.final);
-      window.getSelection().addRange(range);
-    }
-  },
-  "fill": {
-    "select": function () {
-      config.button.language.textContent = '';
-      for (let i = 0; i < config.language.length; i++) {
-        config.button.language.add(new Option(config.language[i][0], i));
+  "selection": {
+    "remove": function () {
+      if (window.getSelection) {
+        window.getSelection().removeAllRanges();
       }
-      /*  */
-      config.update.dialect(config.language[config.speech.synthesis.prefs.language]);
-      config.button.language.selectedIndex = config.speech.synthesis.prefs.language;
-      config.button.dialect.selectedIndex = config.speech.synthesis.prefs.dialect;
-      config.button.font.selectedIndex = config.speech.synthesis.prefs.font;
-      config.button.size.value = config.speech.synthesis.prefs.size;
+    },
+    "add": function () {
+      if (window.getSelection) {
+        window.getSelection().removeAllRanges();
+        /*  */
+        const range = document.createRange();
+        range.selectNode(config.element.final);
+        window.getSelection().addRange(range);
+      }
     }
   },
   "message": {
     "end": "Speech recognition is ended.",
     "no_speech": "No speech was detected!",
+    "error": "An unexpected error happened!",
+    "no_permission": "Host permission denied!",
     "no_microphone": "No microphone was found!",
     "speak": "Please speak into your microphone...",
     "denied": "Permission to use the microphone was denied!",
+    "no_gpu": "WebGPU API is not supported in your browser!",
     "blocked": "Permission to use the microphone is blocked!",
-    "copy": "Press (Ctrl + C) to copy text (Command + C on Mac)",
     "start": "Speech to Text (Voice Recognition) app is ready.",
+    "copy": "Press (Ctrl + C) to copy text (Command + C on Mac)",
     "no_support": "Speech recognition API is NOT supported in your browser!",
-    "allow": "Please click the - Allow - button to enable microphone in your browser."
-  },
-  "start": function (e) {
-    if (config.speech.synthesis.recognizing) {
-      config.recognition.stop();
-      config.show.info("copy");
-      return;
-    }
-    /*  */
-    config.speech.synthesis.start.timestamp = e.timeStamp;
-    config.recognition.lang = config.button.dialect.value;
-    config.speech.synthesis.final.transcript = '';
-    config.speech.synthesis.ignore.onend = false;
-    config.button.talk.src = "images/nomic.png";
-    config.button.interim.textContent = '';
-    config.button.final.textContent = '';
-    /*  */
-    config.recognition.start();
+    "loading": "Speech to Text (Voice Recognition) is loading, please wait...",
+    "allow": "Please click the - Allow - button to enable microphone in your browser.",
+    "audio": "Whisper AI engine is recognizing text from the input audio file. Please wait..."
   },
   "resize": {
     "timeout": null,
@@ -206,51 +166,6 @@ var config = {
       _blink();
     }
   },
-  "store": {
-    "size": function () {
-      config.speech.synthesis.prefs.size = config.button.size.value;
-      config.update.size();
-    },
-    "font": function () {
-      config.speech.synthesis.prefs.font = config.button.font.selectedIndex;
-      config.update.font();
-    },
-    "dialect": function () {
-      config.speech.synthesis.prefs.dialect = config.button.dialect.selectedIndex;
-      config.recognition.stop();
-    },
-    "language": function () {
-      config.speech.synthesis.prefs.dialect = 0;
-      config.speech.synthesis.prefs.language = config.button.language.selectedIndex;
-      config.update.dialect(config.language[config.button.language.selectedIndex]);
-      config.recognition.stop();
-    }
-  },
-  "storage": {
-    "local": {},
-    "read": function (id) {
-      return config.storage.local[id];
-    },
-    "load": function (callback) {
-      chrome.storage.local.get(null, function (e) {
-        config.storage.local = e;
-        callback();
-      });
-    },
-    "write": function (id, data) {
-      if (id) {
-        if (data !== '' && data !== null && data !== undefined) {
-          let tmp = {};
-          tmp[id] = data;
-          config.storage.local[id] = data;
-          chrome.storage.local.set(tmp);
-        } else {
-          delete config.storage.local[id];
-          chrome.storage.local.remove(id);
-        }
-      }
-    }
-  },
   "port": {
     "name": '',
     "connect": function () {
@@ -277,58 +192,49 @@ var config = {
       document.documentElement.setAttribute("context", config.port.name);
     }
   },
-  "load": function () {
-    const reload = document.getElementById("reload");
-    const support = document.getElementById("support");
-    const donation = document.getElementById("donation");
-    /*  */
-    config.button.font = document.getElementById("font");
-    config.button.size = document.getElementById("size");
-    config.button.talk = document.getElementById("talk");
-    config.button.info = document.getElementById("info");
-    config.button.start = document.getElementById("start");
-    config.button.final = document.getElementById("final");
-    config.button.interim = document.getElementById("interim");
-    config.button.dialect = document.getElementById("dialect");
-    config.button.language = document.getElementById("language");
-    config.current.element.final = document.querySelector(".container .results .final");
-    config.current.element.interim = document.querySelector(".container .results .interim");
-    /*  */
-    config.button.start.addEventListener("click", config.start, false);
-    config.button.font.addEventListener("change", config.store.font, false);
-    config.button.size.addEventListener("change", config.store.size, false);
-    config.button.dialect.addEventListener("change", config.store.dialect, false);
-    config.button.language.addEventListener("change", config.store.language, false);
-    /*  */
-    reload.addEventListener("click", function () {
-      document.location.reload();
-    });
-    /*  */
-    support.addEventListener("click", function () {
-      const url = config.addon.homepage();
-      chrome.tabs.create({"url": url, "active": true});
-    }, false);
-    /*  */
-    donation.addEventListener("click", function () {
-      const url = config.addon.homepage() + "?reason=support";
-      chrome.tabs.create({"url": url, "active": true});
-    }, false);
-    /*  */
-    config.storage.load(config.app.start);
-    window.removeEventListener("load", config.load, false);
+  "storage": {
+    "local": {},
+    "read": function (id) {
+      return config.storage.local[id];
+    },
+    "reset": function (callback) {
+      chrome.storage.local.clear(callback);
+    },
+    "load": function (callback) {
+      chrome.storage.local.get(null, function (e) {
+        config.storage.local = e;
+        callback();
+      });
+    },
+    "write": function (id, data) {
+      if (id) {
+        if (data !== '' && data !== null && data !== undefined) {
+          let tmp = {};
+          tmp[id] = data;
+          config.storage.local[id] = data;
+          chrome.storage.local.set(tmp);
+        } else {
+          delete config.storage.local[id];
+          chrome.storage.local.remove(id);
+        }
+      }
+    }
   },
   "update": {
+    "chunk": function () {
+      config.button.chunk.value = config.app.prefs.whisper.chunk;
+    },
     "font": function () {
-      const font = config.button.font[config.speech.synthesis.prefs.font].textContent;
+      const font = config.button.font[config.app.prefs.font].textContent;
       /*  */
-      config.current.element.final.style.fontFamily = font;
-      config.current.element.interim.style.fontFamily = font;
+      config.element.final.style.fontFamily = font;
+      config.element.interim.style.fontFamily = font;
     },
     "size": function () {
-      const size = config.speech.synthesis.prefs.size;
+      const size = config.app.prefs.size;
       /*  */
-      config.current.element.final.style.fontSize = size + "px";
-      config.current.element.interim.style.fontSize = size + "px";
+      config.element.final.style.fontSize = size + "px";
+      config.element.interim.style.fontSize = size + "px";
     },
     "dialect": function (target) {
       if (target) {
@@ -346,135 +252,180 @@ var config = {
       }
     }
   },
-  "speech": {
-    "synthesis": {
-      "recognizing": false,
-      "ignore": {
-        "onend": null
-      },
-      "final": {
-        "transcript": ''
-      },
-      "start": {
-        "timestamp": null
-      },
-      "init": function () {
-        config.fill.select();
-        config.show.info("start", "Please click on the microphone button to start speaking.");
-        config.speech.synthesis.methods.oninit();
-      },
-      "prefs": {
-        set font (val) {config.storage.write("font", val)},
-        set size (val) {config.storage.write("size", val)},
+  "store": {
+    "size": function () {
+      config.app.prefs.size = config.button.size.value;
+      config.update.size();
+    },
+    "font": function () {
+      config.app.prefs.font = config.button.font.selectedIndex;
+      config.update.font();
+    },
+    "chunk": function () {
+      config.app.prefs.whisper.chunk = config.button.chunk.value;
+      /*  */
+      window.setTimeout(function () {
+        document.location.reload();
+      }, 300);
+    },
+    "dialect": function () {
+      config.app.prefs.webapi.dialect = config.button.dialect.selectedIndex;
+      /*  */
+      window.setTimeout(function () {
+        document.location.reload();
+      }, 300);
+    },
+    "engine": function () {
+      config.app.prefs.engine = config.button.engine.value;
+      /*  */
+      window.setTimeout(function () {
+        document.location.reload();
+      }, 300);
+    },
+    "language": function () {
+      const engine = config.app.prefs.engine;
+      /*  */
+      config.app.prefs[engine].language = config.button.language.selectedIndex;
+      if (engine === "webapi") {
+        config.app.prefs[engine].dialect = 0;
+        config.update.dialect(config.language[engine][config.button.language.selectedIndex]);
+      }
+      /*  */
+      window.setTimeout(function () {
+        document.location.reload();
+      }, 300);
+    }
+  },
+  "app": {
+    "start": function () {
+      const theme = config.app.prefs.theme;
+      const engine = config.app.prefs.engine;
+      /*  */
+      document.documentElement.setAttribute("theme", theme);
+      /*  */
+      config.update.size();
+      config.update.font();
+      config.update.chunk();
+      config.speech[engine].init();
+    },
+    "initialize": async function (e) {
+      const engine = config.app.prefs.engine;
+      /*  */
+      if (config.speech[engine].recognizing) {
+        config.speech[engine].instance.stop();
+        config.show.info("copy");
+        return;
+      }
+      /*  */
+      config.speech[engine].start.timestamp = e.timeStamp;
+      config.speech[engine].final.transcript = '';
+      config.speech[engine].ignore.onend = false;
+      config.button.talk.src = "images/nomic.png";
+      config.element.interim.textContent = '';
+      config.element.final.textContent = '';
+      /*  */
+      config.speech[engine].instance.start();
+    },
+    "prefs": {
+      set font (val) {config.storage.write("font", val)},
+      set size (val) {config.storage.write("size", val)},
+      set theme (val) {config.storage.write("theme", val)},
+      set engine (val) {config.storage.write("engine", val)},
+      //
+      get font () {return config.storage.read("font") !== undefined ? config.storage.read("font") : 19},
+      get size () {return config.storage.read("size") !== undefined ? config.storage.read("size") : 14},
+      get theme () {return config.storage.read("theme") !== undefined ? config.storage.read("theme") : "light"},
+      get engine () {return config.storage.read("engine") !== undefined ? config.storage.read("engine") : "webapi"},
+      //
+      "webapi": {
         set dialect (val) {config.storage.write("dialect", val)},
         set language (val) {config.storage.write("language", val)},
-        get font () {return config.storage.read("font") !== undefined ? config.storage.read("font") : 19},
-        get size () {return config.storage.read("size") !== undefined ? config.storage.read("size") : 14},
         get dialect () {return config.storage.read("dialect") !== undefined ? config.storage.read("dialect") : 11},
-        get language () {return config.storage.read("language") !== undefined ? config.storage.read("language") : 10},
+        get language () {return config.storage.read("language") !== undefined ? config.storage.read("language") : 10}
       },
-      "methods": {
-        "onstart": function () {
-          config.flash.start();
-          config.speech.synthesis.recognizing = true;
-          config.button.talk.src = "images/micactive.png";
-          /*  */
-          const dialect = config.button.dialect[config.button.dialect.selectedIndex].textContent;
-          const language = config.button.language[config.button.language.selectedIndex].textContent;
-          /*  */
-          config.show.info("speak", "Input language: " + language + ' > ' + dialect);
-        },
-        "onend": function () {
-          config.speech.synthesis.recognizing = false;
-          if (config.speech.synthesis.ignore.onend) return;
-          /*  */
-          config.flash.stop();
-          config.button.talk.src = "images/mic.png";
-          if (!config.speech.synthesis.final.transcript) {
-            config.show.info("end", "No results to show! please try again later.");
-            return;
-          }
-          /*  */
-          config.selection();
-          config.show.info("copy");
-        },
-        "onresult": function (e) {
-          const error = e.results === undefined || (typeof e.results) === "undefined";
-          if (error) {
-            config.recognition.onend = null;
-            config.recognition.stop();
-            config.nosupport();
-            return;
-          }
-          /*  */
-          let interim = '';
-          for (let i = e.resultIndex; i < e.results.length; ++i) {
-            if (e.results[i].isFinal) {
-              config.speech.synthesis.final.transcript += e.results[i][0].transcript;
-            } else {
-              interim += e.results[i][0].transcript;
-            }
-          }
-          /*  */
-          config.speech.synthesis.final.transcript = config.capitalize(config.speech.synthesis.final.transcript);
-          config.button.final.textContent = config.linebreak(config.speech.synthesis.final.transcript);
-          config.button.interim.textContent = config.linebreak(interim);
-        },
-        "onerror": function (e) {
-          if (e.error === "no-speech") {
-            config.flash.stop();
-            config.button.talk.src = "images/mic.png";
-            config.speech.synthesis.ignore.onend = true;
-            config.show.info("no_speech", "Please click on the microphone button again.");
-          }
-          /*  */
-          if (e.error === "audio-capture") {
-            config.flash.stop();
-            config.show.info("no_microphone");
-            config.button.talk.src = "images/mic.png";
-            config.speech.synthesis.ignore.onend = true;
-          }
-          /*  */
-          if (e.error === "not-allowed") {
-            const diff = e.timeStamp - config.speech.synthesis.start.timestamp;
-            config.show.info(diff < 100 ? "blocked" : "denied");
-            config.speech.synthesis.ignore.onend = true;
-          }
-        },
-        "oninit": function () {
-          window.SpeechRecognition = window.webkitSpeechRecognition || window.mozSpeechRecognition || window.SpeechRecognition;
-          /*  */
-          if (window.SpeechRecognition === undefined) {
-            config.nosupport();
-          } else {
-            if (navigator.getUserMedia) {
-              config.show.info("allow");
-              navigator.getUserMedia({"audio": true}, function (stream) {
-                if (stream.active) {
-                  config.recognition = new window.SpeechRecognition();
-                  /*  */
-                  config.recognition.continuous = true;
-                  config.recognition.interimResults = true;
-                  config.recognition.onend = config.speech.synthesis.methods.onend;
-                  config.recognition.onstart = config.speech.synthesis.methods.onstart;
-                  config.recognition.onerror = config.speech.synthesis.methods.onerror;
-                  config.recognition.onresult = config.speech.synthesis.methods.onresult;
-                  config.show.info("start", "Please click on the microphone button to start speaking.");
-                } else {
-                  config.show.info("blocked", "Please reload the app and try again.");
-                  config.speech.synthesis.ignore.onend = true;
-                }
-              }, function (e) {
-                config.show.info("blocked", "Please reload the app and try again.");
-                config.speech.synthesis.ignore.onend = true;
-              });
-            } else {
-              config.nosupport();
-            }
-          }
-        }
+      "whisper": {
+        set chunk (val) {config.storage.write("chunk", val)},
+        set permission (val) {config.storage.write("permission", val)},
+        set language (val) {config.storage.write("language-whisper", val)},
+        get chunk () {return config.storage.read("chunk") !== undefined ? config.storage.read("chunk") : 1},
+        get permission () {return config.storage.read("permission") !== undefined ? config.storage.read("permission") : false},
+        get language () {return config.storage.read("language-whisper") !== undefined ? config.storage.read("language-whisper") : 20}
       }
     }
+  },
+  "load": function () {
+    const theme = document.getElementById("theme");
+    const reset = document.getElementById("reset");
+    const reload = document.getElementById("reload");
+    const support = document.getElementById("support");
+    const donation = document.getElementById("donation");
+    const actions = ["drop", "dragenter", "dragover", "dragleave"];
+    /*  */
+    config.button.font = document.getElementById("font");
+    config.button.size = document.getElementById("size");
+    config.button.talk = document.getElementById("talk");
+    config.button.chunk = document.getElementById("chunk");
+    config.button.start = document.getElementById("start");
+    config.button.engine = document.getElementById("engine");
+    config.button.dialect = document.getElementById("dialect");
+    config.button.language = document.getElementById("language");
+    /*  */
+    config.element.info = document.getElementById("info");
+    config.element.final = document.getElementById("final");
+    config.element.interim = document.getElementById("interim");
+    config.element.buttons = document.querySelector(".buttons");
+    config.element.fileinfo = document.querySelector(".fileinfo");
+    config.element.placeholder = document.getElementById("placeholder");
+    config.element.results = document.querySelector(".container .results");
+    /*  */
+    config.button.font.addEventListener("change", config.store.font, false);
+    config.button.size.addEventListener("change", config.store.size, false);
+    config.button.chunk.addEventListener("change", config.store.chunk, false);
+    config.button.engine.addEventListener("change", config.store.engine, false);
+    config.button.start.addEventListener("click", config.app.initialize, false);
+    config.button.dialect.addEventListener("change", config.store.dialect, false);
+    config.button.language.addEventListener("change", config.store.language, false);
+    config.element.results.addEventListener("drop", config.speech.whisper.methods.drop, false);
+    /*  */
+    actions.forEach(function (action) {
+      config.element.results.addEventListener(action, e => e.preventDefault(), false);
+      config.element.results.addEventListener(action, e => e.stopPropagation(), false);
+    });
+    /*  */
+    /*  */
+    reload.addEventListener("click", function () {
+      document.location.reload();
+    });
+    /*  */
+    support.addEventListener("click", function () {
+      const url = config.addon.homepage();
+      chrome.tabs.create({"url": url, "active": true});
+    }, false);
+    /*  */
+    donation.addEventListener("click", function () {
+      const url = config.addon.homepage() + "?reason=support";
+      chrome.tabs.create({"url": url, "active": true});
+    }, false);
+    /*  */
+    reset.addEventListener("click", function () {
+      const reset = window.confirm("Are you sure you want to reset the app to factory settings?");
+      if (reset) {
+        config.storage.reset(function () {
+          document.location.reload();
+        });
+      }
+    });
+    /*  */
+    theme.addEventListener("click", function () {
+      let attribute = document.documentElement.getAttribute("theme");
+      attribute = attribute === "dark" ? "light" : "dark";
+      /*  */
+      document.documentElement.setAttribute("theme", attribute);
+      config.storage.write("theme", attribute);
+    }, false);
+    /*  */
+    config.storage.load(config.app.start);
+    window.removeEventListener("load", config.load, false);
   }
 };
 

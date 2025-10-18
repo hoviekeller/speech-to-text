@@ -1,0 +1,8 @@
+This addon uses the following opensource libraries:
+
+1. Transformers (3.7.5)
+transformers.js: https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.5/dist/transformers.js
+
+2. ONNX Wasm (3.7.5)
+wasm/ort-wasm-simd-threaded.jsep.mjs: https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.5/dist/ort-wasm-simd-threaded.jsep.mjs
+wasm/ort-wasm-simd-threaded.jsep.wasm: https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.5/dist/ort-wasm-simd-threaded.jsep.wasm

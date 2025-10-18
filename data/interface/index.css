@@ -20,18 +20,57 @@ table {
   height: 100%;
   margin: 0 auto;
   overflow: hidden;
-  border-bottom: 1px solid rgba(0,0,0,0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .container .results {
   border: 0;
   margin: 0;
   padding: 10px;
-  height: 400px;
   overflow: hidden;
+  position: relative;
   box-sizing: border-box;
   background-color: #fff;
   width: calc(100% - 42px);
+  height: calc(100vh - 200px);
+}
+
+.container .results[loading] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.container .results .placeholder {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  padding: 10px;
+  flex-flow: column;
+  position: absolute;
+  align-items: center;
+  box-sizing: border-box;
+  justify-content: center;
+  background: transparent;
+}
+
+.container .results .placeholder svg {
+  fill: #555;
+  pointer-events: none;
+  vertical-align: middle;
+}
+
+.container .results .placeholder .fileinfo {
+  border: 0;
+  padding: 0;
+  font-size: 14px;
+  max-width: 250px;
+  margin-top: 25px;
+  line-height: 1.5;
+  text-align: justify;
+  white-space: pre-wrap;
+  font-family: system-ui, sans-serif;
 }
 
 .container .results .final,
@@ -47,6 +86,7 @@ table {
 .container .results .final,
 .container .results .interim {
   font-size: 14px;
+  line-height: 1.5;
 }
 
 .container .results .final pre,
@@ -63,6 +103,8 @@ table {
 }
 
 .container .results:has(.interim:empty) .final {
+  text-align: justify;
+  white-space: pre-wrap;
   display: inline-block;
 }
 
@@ -73,7 +115,7 @@ table {
   padding: 10px;
   overflow: hidden;
   box-sizing: border-box;
-  border-top: solid 1px rgba(0,0,0,0.1);
+  border-top: solid 1px rgba(0, 0, 0, 0.1);
 }
 
 .container .console pre {
@@ -82,8 +124,10 @@ table {
   color: #333;
   height: 100%;
   margin: auto;
+  overflow: auto;
   font-size: 13px;
   line-height: 22px;
+  max-height: 150px;
   white-space: pre-wrap;
   font-family: monospace;
 }
@@ -97,7 +141,12 @@ table {
   align-items: center;
   background-color: #fff;
   justify-content: center;
-  border-top: solid 1px rgba(0,0,0,0.1);
+  border-top: solid 1px rgba(0, 0, 0, 0.1);
+}
+
+.buttons[loading] {
+  opacity: 0.5;
+  pointer-events: none;
 }
 
 .buttons table tr td {
@@ -118,7 +167,7 @@ table {
   text-indent: 10px;
   vertical-align: middle;
   font-family: monospace;
-  border: solid 1px rgba(0,0,0,0.1);
+  border: solid 1px rgba(0, 0, 0, 0.1);
   transition: 300ms ease border-color;
 }
 
@@ -126,7 +175,7 @@ table {
   margin: 1px;
   color: #333;
   height: 42px;
-  width: 178px;
+  width: 150px;
   outline: none;
   cursor: pointer;
   font-size: 13px;
@@ -135,12 +184,12 @@ table {
   text-indent: 10px;
   vertical-align: middle;
   font-family: monospace;
-  border: solid 1px rgba(0,0,0,0.1);
+  border: solid 1px rgba(0, 0, 0, 0.1);
   transition: 300ms ease border-color;
 }
 
 .buttons select:hover {
-  border-color: rgba(0,0,0,0.2);
+  border-color: rgba(0, 0, 0, 0.2);
 }
 
 .buttons .start {
@@ -149,15 +198,15 @@ table {
   opacity: 0.8;
   text-align: center;
   transition: 300ms ease opacity;
-  border-right: solid 1px rgba(0,0,0,0.1);
+  border-right: solid 1px rgba(0, 0, 0, 0.1);
 }
 
 .buttons .start[color='white'] {
-  border-right-color: rgba(0,0,0,0.1);
+  border-right-color: rgba(0, 0, 0, 0.1) !important;
 }
 
 .buttons .start[color='red'] {
-  border-right-color: rgb(224,85,85);
+  border-right-color: rgb(224, 85, 85) !important;
 }
 
 .buttons .start:hover {
@@ -203,7 +252,6 @@ table {
 .toolbar table tr td {
   border: 0;
   padding: 0;
-  color: #777;
   width: 42px;
   height: 42px;
   outline: none;
@@ -215,7 +263,7 @@ table {
 }
 
 .toolbar table tr td:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: rgba(0,  0,  0,  0.05);
 }
 
 .toolbar table tr td svg {
@@ -224,33 +272,94 @@ table {
   vertical-align: middle;
 }
 
-@media (max-width: 750px) {
+@media (max-width: 800px) {
   .buttons select {
-    width: 125px;
+    width: 130px;
   }
 }
 
-@media (max-width: 550px) {
+@media (max-width: 700px) {
+  .buttons select {
+    width: 100px;
+  }
+}
+
+@media (max-width: 600px) {
   .toolbar {
     display: none !important;
   }
   .container .results {
-    height: 350px;
+    width: 100%;
+    height: calc(100vh - 400px);
   }
-  .buttons input {
-    height: 36px;
-    margin-right: -1px;
+  .buttons input,
+  .buttons select {
+    height: 38px;
   }
   .buttons select {
     width: 100%;
-    height: 38px;
   }
-  .buttons #font {
-    float: left;
-    width: calc(100% - 64px);
+  .buttons input {
+    width: calc(100% - 2px);
   }
 }
 
-html[context="webapp"] .toolbar {
+html[engine='webapi'] #chunk,
+html[engine='webapi'] .container .results .placeholder {
   display: none;
+}
+
+html[engine='whisper'] #dialect {
+  display: none;
+}
+
+html[context='webapp'] .toolbar #support,
+html[context='webapp'] .toolbar #donation {
+  display: none;
+}
+
+html[theme='dark'], 
+html[theme='dark'] body {
+  color: #ebebeb;
+  color-scheme: dark;
+  background-color: #1e1e1e;
+}
+
+html[theme='dark'] .buttons input,
+html[theme='dark'] .buttons select,
+html[theme='dark'] .container .results {
+  color: #ebebeb;
+  background-color: #1e1e1e;
+}
+
+html[theme='dark'] .toolbar,
+html[theme='dark'] .buttons,
+html[theme='dark'] .toolbar table tr td {
+  background-color: #1e1e1e;
+}
+
+html[theme='dark'] .buttons .start button {
+  background-color: #fff;
+}
+
+html[theme='dark'] .toolbar table tr td:hover {
+  background-color: rgb(255 255 255 / 10%);
+}
+
+html[theme='dark'] .container .console pre {
+  color: #ebebeb;
+}
+
+html[theme='dark'] .buttons,
+html[theme='dark'] .container,
+html[theme='dark'] .buttons input,
+html[theme='dark'] .buttons select,
+html[theme='dark'] .buttons .start,
+html[theme='dark'] .container .console {
+  border-color: rgb(255 255 255 / 25%);
+}
+
+html[theme='dark'] .toolbar table tr td svg,
+html[theme='dark'] .container .results .placeholder svg {
+  fill: #ebebeb;
 }

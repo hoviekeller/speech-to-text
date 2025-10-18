@@ -423,7 +423,10 @@ config.speech = {
             module.env.backends.onnx.logLevel = "error";
             module.env.backends.onnx.wasm.proxy = true; // for multi-threaded speedup
             module.env.backends.onnx.wasm.numThreads = navigator.hardwareConcurrency || 4;
-            module.env.backends.onnx.wasm.wasmPaths = chrome.runtime.getURL("/data/interface/vendor/wasm/");
+            module.env.backends.onnx.wasm.wasmPaths = {
+              "mjs": chrome.runtime.getURL("/data/interface/vendor/wasm/ort-wasm-simd-threaded.jsep.mjs"),
+              "wasm": chrome.runtime.getURL("/data/interface/vendor/wasm/ort-wasm-simd-threaded.jsep.wasm")
+            };
             /*  */
             progress.size = {'a': 0, 'b': 0, 'c': 0};
             progress.percent = {'a': 0, 'b': 0, 'c': 0};

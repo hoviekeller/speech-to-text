@@ -272,15 +272,21 @@ table {
   vertical-align: middle;
 }
 
-@media (max-width: 800px) {
+@media (max-width: 950px) {
   .buttons select {
     width: 130px;
   }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 850px) {
   .buttons select {
-    width: 100px;
+    width: 110px;
+  }
+}
+
+@media (max-width: 750px) {
+  .buttons select {
+    width: 90px;
   }
 }
 
@@ -305,6 +311,7 @@ table {
 }
 
 html[engine='webapi'] #chunk,
+html[engine='webapi'] #backend,
 html[engine='webapi'] .container .results .placeholder {
   display: none;
 }

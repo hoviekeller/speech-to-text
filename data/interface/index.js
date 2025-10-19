@@ -64,6 +64,7 @@ var background = {
 var config = {
   "button": {},
   "element": {},
+  "isgecko": navigator.userAgent.toLowerCase().includes("firefox"),
   "linebreak": function (e) {
     return e.replace(/\n\n/g, "<p></p>").replace(/\n/g, "<br>");
   },
@@ -89,6 +90,7 @@ var config = {
     config.button.chunk.disabled = true;
     config.button.start.disabled = true;
     config.button.engine.disabled = true;
+    config.button.backend.disabled = true;
     config.button.dialect.disabled = true;
     config.button.language.disabled = true;
     config.button.talk.src = "images/nomic.png";
@@ -282,6 +284,13 @@ var config = {
         document.location.reload();
       }, 300);
     },
+    "backend": function () {
+      config.app.prefs.backend = config.button.backend.value;
+      /*  */
+      window.setTimeout(function () {
+        document.location.reload();
+      }, 300);
+    },
     "language": function () {
       const engine = config.app.prefs.engine;
       /*  */
@@ -331,11 +340,13 @@ var config = {
       set size (val) {config.storage.write("size", val)},
       set theme (val) {config.storage.write("theme", val)},
       set engine (val) {config.storage.write("engine", val)},
+      set backend (val) {config.storage.write("backend", val)},
       //
       get font () {return config.storage.read("font") !== undefined ? config.storage.read("font") : 19},
       get size () {return config.storage.read("size") !== undefined ? config.storage.read("size") : 14},
       get theme () {return config.storage.read("theme") !== undefined ? config.storage.read("theme") : "light"},
       get engine () {return config.storage.read("engine") !== undefined ? config.storage.read("engine") : "webapi"},
+      get backend () {return config.storage.read("backend") !== undefined ? config.storage.read("backend") : config.isgecko ? "wasm" : "webgpu"},
       //
       "webapi": {
         set dialect (val) {config.storage.write("dialect", val)},
@@ -367,6 +378,7 @@ var config = {
     config.button.chunk = document.getElementById("chunk");
     config.button.start = document.getElementById("start");
     config.button.engine = document.getElementById("engine");
+    config.button.backend = document.getElementById("backend");
     config.button.dialect = document.getElementById("dialect");
     config.button.language = document.getElementById("language");
     /*  */
@@ -384,6 +396,7 @@ var config = {
     config.button.engine.addEventListener("change", config.store.engine, false);
     config.button.start.addEventListener("click", config.app.initialize, false);
     config.button.dialect.addEventListener("change", config.store.dialect, false);
+    config.button.backend.addEventListener("change", config.store.backend, false);
     config.button.language.addEventListener("change", config.store.language, false);
     config.element.results.addEventListener("drop", config.speech.whisper.methods.drop, false);
     /*  */

@@ -24,6 +24,7 @@ config.speech = {
       config.button.language.selectedIndex = config.app.prefs.webapi.language;
       config.button.dialect.selectedIndex = config.app.prefs.webapi.dialect;
       config.button.font.selectedIndex = config.app.prefs.font;
+      config.button.backend.value = config.app.prefs.backend;
       config.button.engine.value = config.app.prefs.engine;
       config.button.size.value = config.app.prefs.size;
       /*  */
@@ -160,6 +161,7 @@ config.speech = {
       /*  */
       config.button.language.selectedIndex = config.app.prefs.whisper.language;
       config.button.font.selectedIndex = config.app.prefs.font;
+      config.button.backend.value = config.app.prefs.backend;
       config.button.engine.value = config.app.prefs.engine;
       config.button.size.value = config.app.prefs.size;
       /*  */
@@ -435,16 +437,17 @@ config.speech = {
             /*  */
             config.speech.whisper.instance.transcriber = await module.pipeline("automatic-speech-recognition", "whisper-base", {
               "dtype": "fp32",
-              "device": "webgpu",
               "quantized": false,
+              "device": config.app.prefs.backend,
               "progress_callback": async function (data) {
                 if (data) {
                   if (data.status === "ready") {
                     const usermedia = navigator.getUserMedia;
                     const gpuadapter = "gpu" in navigator ? await navigator.gpu.requestAdapter() : null;
                     const gpudevice = gpuadapter ? await gpuadapter.requestDevice() : null;
+                    const supported = config.app.prefs.backend === "wasm" ? true : gpuadapter && gpudevice;
                     /*  */
-                    if (usermedia && gpuadapter && gpudevice) {
+                    if (usermedia && supported) {
                       config.show.info("start", "Please click on the microphone button to start speaking.");
                     } else {
                       config.nosupport();
